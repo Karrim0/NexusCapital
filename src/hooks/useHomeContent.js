@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { fetchHomeContent } from "../api/homeContent";
 import homeContentDefaults from "../utils/homeContentDefaults";
 
@@ -22,6 +23,9 @@ const deepMerge = (base, incoming) => {
 };
 
 export const useHomeContent = () => {
+  const { i18n } = useTranslation();
+  const language = i18n.resolvedLanguage || i18n.language || "en";
+
   const [content, setContent] = useState(homeContentDefaults);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,7 +46,7 @@ export const useHomeContent = () => {
 
   useEffect(() => {
     load();
-  }, [load]);
+  }, [load, language]);
 
   return { content, loading, error, reload: load };
 };

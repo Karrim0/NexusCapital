@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { fetchFaqContent } from "../api/faqContent";
 import faqContentDefaults from "../utils/faqContentDefaults";
 
@@ -19,6 +20,9 @@ const deepMerge = (base, incoming) => {
 };
 
 export const useFaqContent = () => {
+  const { i18n } = useTranslation();
+  const language = i18n.resolvedLanguage || i18n.language || "en";
+
   const [content, setContent] = useState(faqContentDefaults);
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +40,7 @@ export const useFaqContent = () => {
 
   useEffect(() => {
     load();
-  }, [load]);
+  }, [load, language]);
 
   return { content, loading, reload: load };
 };

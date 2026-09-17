@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { fetchLegalServicesContent } from "../api/legalServicesContent";
 import legalServicesContentDefaults from "../utils/legalServicesContentDefaults";
 
@@ -19,6 +20,9 @@ const deepMerge = (base, incoming) => {
 };
 
 export const useLegalServicesContent = () => {
+  const { i18n } = useTranslation();
+  const language = i18n.resolvedLanguage || i18n.language || "en";
+
   const [content, setContent] = useState(legalServicesContentDefaults);
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +40,7 @@ export const useLegalServicesContent = () => {
 
   useEffect(() => {
     load();
-  }, [load]);
+  }, [load, language]);
 
   return { content, loading, reload: load };
 };

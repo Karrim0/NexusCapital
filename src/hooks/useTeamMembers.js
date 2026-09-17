@@ -1,7 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { fetchTeamMembers } from "../api/teamMembers";
 
 export const useTeamMembers = () => {
+  const { i18n } = useTranslation();
+  const language = i18n.resolvedLanguage || i18n.language || "en";
+
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -19,7 +23,7 @@ export const useTeamMembers = () => {
 
   useEffect(() => {
     load();
-  }, [load]);
+  }, [load, language]);
 
   return { members, loading, reload: load };
 };

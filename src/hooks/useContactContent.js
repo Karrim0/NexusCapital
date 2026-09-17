@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { fetchContactContent } from "../api/contactContent";
 import contactContentDefaults from "../utils/contactContentDefaults";
 
@@ -19,6 +20,9 @@ const deepMerge = (base, incoming) => {
 };
 
 export const useContactContent = () => {
+  const { i18n } = useTranslation();
+  const language = i18n.resolvedLanguage || i18n.language || "en";
+
   const [content, setContent] = useState(contactContentDefaults);
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +40,7 @@ export const useContactContent = () => {
 
   useEffect(() => {
     load();
-  }, [load]);
+  }, [load, language]);
 
   return { content, loading, reload: load };
 };
