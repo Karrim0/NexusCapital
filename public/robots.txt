@@ -1,0 +1,79 @@
+# Robots.txt for Joya Real Estate
+# https://joya-realestate.com/robots.txt
+
+# Allow all crawlers by default
+User-agent: *
+Allow: /
+
+# Disallow admin, dashboard, and auth areas (save crawl budget)
+Disallow: /dashboard/
+Disallow: /dashboard/*
+Disallow: /login
+Disallow: /register
+Disallow: /auth/
+
+# Disallow search result pages with query parameters (prevent duplicate content)
+Disallow: /*?search=*
+Disallow: /*?filter=*
+Disallow: /*?page=*
+Disallow: /*?sort=*
+
+# Disallow thank you / confirmation pages (no SEO value)
+Disallow: /thank-you
+Disallow: /success
+
+# Allow important pages (explicit for clarity)
+Allow: /
+Allow: /properties
+Allow: /properties/*
+Allow: /about
+Allow: /contact
+Allow: /buy
+Allow: /rent
+Allow: /lands-buildings
+Allow: /blog
+
+# Allow static assets
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.png$
+Allow: /*.gif$
+Allow: /*.svg$
+Allow: /*.webp$
+
+# Sitemap location
+Sitemap: https://joya-realestate.com/sitemap.xml
+
+# Crawl-delay for aggressive bots (prevents server overload)
+# Google, Bing ignore this, but others respect it
+Crawl-delay: 1
+
+# Special rules for specific bots
+
+# Google Images - allow everything
+User-agent: Googlebot-Image
+Allow: /
+
+# Google - allow everything
+User-agent: Googlebot
+Allow: /
+
+# Bing - allow everything
+User-agent: Bingbot
+Allow: /
+
+# Block bad bots that scrape content
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+

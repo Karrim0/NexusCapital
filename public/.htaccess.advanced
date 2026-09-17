@@ -1,0 +1,254 @@
+/**
+ * Advanced .htaccess for World-Class SEO
+ * Place this in: public/.htaccess
+ * 
+ * Features:
+ * - Dynamic rendering for bots (Prerender.io alternative)
+ * - Advanced caching strategies
+ * - Security headers
+ * - Image optimization headers
+ */
+
+# ============================================
+# PRERENDERING FOR SOCIAL MEDIA BOTS
+# ============================================
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  
+  # Detect if request is from a bot that needs pre-rendered content
+  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|WhatsApp|LinkedInBot|Twitterbot|Slackbot|Telegram|Google-Structured-Data-Testing-Tool|bingbot|googlebot|Pinterest|Pinterestbot|Instagram) [NC,OR]
+  RewriteCond %{QUERY_STRING} _escaped_fragment_
+  
+  # Skip API requests
+  RewriteCond %{REQUEST_URI} !^/api/
+  
+  # If using Prerender.io (uncomment and add your token):
+  # RewriteRule ^(.*)$ https://service.prerender.io/https://joya-realestate.com/$1 [P,L]
+  
+  # If using react-snap (pre-rendered static HTML), continue normally
+  # (No special handling needed - static files will be served)
+</IfModule>
+
+# ============================================
+# HTTPS & WWW REDIRECT
+# ============================================
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  
+  # Force HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+  
+  # Remove www (if you prefer non-www)
+  RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+  RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+  
+  # Remove trailing slashes (prevents duplicate content)
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} (.+)/$
+  RewriteRule ^ %1 [R=301,L]
+</IfModule>
+
+# ============================================
+# SPA ROUTING (React Router)
+# ============================================
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  
+  # Don't rewrite files or directories
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  
+  # Don't rewrite API calls
+  RewriteCond %{REQUEST_URI} !^/api/
+  
+  # Don't rewrite storage files
+  RewriteCond %{REQUEST_URI} !^/storage/
+  
+  # Don't rewrite asset files
+  RewriteCond %{REQUEST_URI} !\.(jpg|jpeg|png|gif|ico|svg|css|js|woff|woff2|ttf|eot|json|xml|txt|pdf|webp)$ [NC]
+  
+  # Route everything else to index.html
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# ============================================
+# SERVE STORAGE FILES DIRECTLY
+# ============================================
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  
+  # If storage file exists, serve it directly
+  RewriteCond %{REQUEST_URI} ^/storage/
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+</IfModule>
+
+# ============================================
+# SECURITY HEADERS
+# ============================================
+<IfModule mod_headers.c>
+  # XSS Protection
+  Header always set X-XSS-Protection "1; mode=block"
+  
+  # Prevent MIME sniffing
+  Header always set X-Content-Type-Options "nosniff"
+  
+  # Clickjacking protection
+  Header always set X-Frame-Options "SAMEORIGIN"
+  
+  # Referrer Policy
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  
+  # Permissions Policy (formerly Feature-Policy)
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+  
+  # Content Security Policy (basic - adjust as needed)
+  # Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.joya-realestate.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.joya-realestate.com;"
+</IfModule>
+
+# ============================================
+# CACHE CONTROL (Performance Optimization)
+# ============================================
+<IfModule mod_expires.c>
+  ExpiresActive On
+  
+  # Images - 1 year
+  ExpiresByType image/jpg "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/gif "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/x-icon "access plus 1 year"
+  
+  # Fonts - 1 year
+  ExpiresByType font/ttf "access plus 1 year"
+  ExpiresByType font/otf "access plus 1 year"
+  ExpiresByType font/woff "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType application/font-woff "access plus 1 year"
+  
+  # CSS and JavaScript - 1 month
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType text/javascript "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  
+  # HTML - 1 hour (for pre-rendered pages)
+  ExpiresByType text/html "access plus 1 hour"
+  
+  # Data - 1 day
+  ExpiresByType application/json "access plus 1 day"
+  ExpiresByType application/xml "access plus 1 day"
+  ExpiresByType text/xml "access plus 1 day"
+  
+  # Default - 1 week
+  ExpiresDefault "access plus 1 week"
+</IfModule>
+
+# Alternative cache headers if mod_expires is not available
+<IfModule !mod_expires.c>
+  <IfModule mod_headers.c>
+    # Images and fonts - 1 year
+    <FilesMatch "\.(jpg|jpeg|png|gif|svg|webp|ico|ttf|otf|woff|woff2)$">
+      Header set Cache-Control "max-age=31536000, public, immutable"
+    </FilesMatch>
+    
+    # CSS and JS - 1 month
+    <FilesMatch "\.(css|js)$">
+      Header set Cache-Control "max-age=2592000, public"
+    </FilesMatch>
+    
+    # HTML - 1 hour
+    <FilesMatch "\.(html|htm)$">
+      Header set Cache-Control "max-age=3600, public, must-revalidate"
+    </FilesMatch>
+  </IfModule>
+</IfModule>
+
+# ============================================
+# GZIP COMPRESSION
+# ============================================
+<IfModule mod_deflate.c>
+  # Compress HTML, CSS, JavaScript, JSON, XML
+  AddOutputFilterByType DEFLATE text/html
+  AddOutputFilterByType DEFLATE text/css
+  AddOutputFilterByType DEFLATE text/javascript
+  AddOutputFilterByType DEFLATE application/javascript
+  AddOutputFilterByType DEFLATE application/x-javascript
+  AddOutputFilterByType DEFLATE application/json
+  AddOutputFilterByType DEFLATE application/xml
+  AddOutputFilterByType DEFLATE text/xml
+  AddOutputFilterByType DEFLATE text/plain
+  AddOutputFilterByType DEFLATE image/svg+xml
+  
+  # Don't compress images (already compressed)
+  SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png|webp|ico)$ no-gzip dont-vary
+  
+  # Handle proxies
+  Header append Vary User-Agent env=!dont-vary
+</IfModule>
+
+# ============================================
+# BROTLI COMPRESSION (if available)
+# ============================================
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/xml text/css
+  AddOutputFilterByType BROTLI_COMPRESS application/javascript application/json application/xml
+</IfModule>
+
+# ============================================
+# IMAGE OPTIMIZATION HEADERS
+# ============================================
+<IfModule mod_headers.c>
+  # Tell browsers that images support WebP
+  <FilesMatch "\.(jpg|jpeg|png)$">
+    Header set Accept "image/webp,*/*"
+  </FilesMatch>
+  
+  # Enable cross-origin for fonts and images
+  <FilesMatch "\.(ttf|ttc|otf|eot|woff|woff2|svg|jpg|jpeg|png|gif|webp)$">
+    Header set Access-Control-Allow-Origin "*"
+  </FilesMatch>
+</IfModule>
+
+# ============================================
+# ERROR PAGES (Optional)
+# ============================================
+# ErrorDocument 404 /index.html
+# ErrorDocument 500 /index.html
+
+# ============================================
+# DISABLE DIRECTORY LISTING
+# ============================================
+Options -Indexes
+
+# ============================================
+# PROTECT SENSITIVE FILES
+# ============================================
+<FilesMatch "^\.">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
+<FilesMatch "(\.env|\.git|\.htaccess|\.htpasswd|package\.json|composer\.json)$">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
+# ============================================
+# PERFORMANCE: ETags
+# ============================================
+<IfModule mod_headers.c>
+  # Remove ETags (use Cache-Control instead)
+  Header unset ETag
+</IfModule>
+FileETag None
+
+# ============================================
+# PERFORMANCE: Keep-Alive
+# ============================================
+<IfModule mod_headers.c>
+  Header set Connection keep-alive
+</IfModule>

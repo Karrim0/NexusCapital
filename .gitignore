@@ -1,0 +1,45 @@
+# Environment / secrets
+.env
+src/.env
+Backend/.env
+
+# Frontend dependencies/build
+node_modules/
+dist/
+
+# Laravel dependencies
+Backend/vendor/
+Backend/node_modules/
+
+# Laravel runtime/cache
+Backend/storage/logs/*
+Backend/storage/framework/cache/*
+Backend/storage/framework/sessions/*
+Backend/storage/framework/views/*
+Backend/bootstrap/cache/*.php
+
+# Testing / logs
+*.log
+.phpunit.result.cache
+Backend/.phpunit.cache/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+
+# Database dumps
+*.sql
+# Backend local environment
+Backend/env
+
+# Local databases
+Backend/database/*.sqlite
+Backend/database/*.sqlite-*
+
+# Runtime logs
+Backend/public/error_log
+Backend/public/*.log
+
+# Runtime uploaded files
+Backend/storage/app/public/
+Backend/public/storage/
