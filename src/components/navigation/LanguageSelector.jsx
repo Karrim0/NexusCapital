@@ -15,7 +15,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useCustomizer } from "../../context/CustomizerContext";
-import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from "../../i18n";
+import { detectLanguageFromPath } from "../../i18n";
+import { buildLocalizedPath } from "../../utils/localizedPath";
 import englishFlag from "../../assets/images/english.png";
 import arabicFlag from "../../assets/images/arabic.png";
 import germanyFlag from "../../assets/images/germany.png";
@@ -34,22 +35,6 @@ const languages = [
   { code: "ru", name: "Russian", nameKey: "russian", emoji: "🇷🇺" },
   { code: "fr", name: "French", nameKey: "french", emoji: "🇫🇷" },
 ];
-
-/** Strips any leading language-code segment (e.g. /de/about -> /about). */
-const stripLangPrefix = (pathname) => {
-  const parts = pathname.split("/").filter(Boolean);
-  if (parts.length && SUPPORTED_LANGUAGES.includes(parts[0])) {
-    return "/" + parts.slice(1).join("/");
-  }
-  return "/" + parts.join("/");
-};
-
-/** Builds the equivalent URL for the same page in a different language. */
-const buildLocalizedPath = (langCode, pathname) => {
-  const bare = stripLangPrefix(pathname); // e.g. "/" or "/about"
-  if (langCode === DEFAULT_LANGUAGE) return bare;
-  return bare === "/" ? `/${langCode}` : `/${langCode}${bare}`;
-};
 
 const FlagGlyph = ({ lang, className, sx }) => {
   if (lang.flag) {
@@ -85,7 +70,7 @@ const FlagGlyph = ({ lang, className, sx }) => {
 };
 
 const LanguageSelector = () => {
-  const { i18n, t } = useTranslation();
+  const { t } = useTranslation();
   const { settings } = useCustomizer();
   const navigate = useNavigate();
   const location = useLocation();
@@ -110,12 +95,13 @@ const LanguageSelector = () => {
     // language now (LocaleLayout picks it up from the route) — this keeps
     // every language on its own indexable, shareable URL.
     const targetPath = buildLocalizedPath(langCode, location.pathname);
-    navigate(`${targetPath}${location.search}`);
+    navigate(`${targetPath}${location.search}${location.hash}`);
     handleClose();
   };
 
+  const routeLanguage = detectLanguageFromPath(location.pathname);
   const currentLanguage =
-    languages.find((lang) => lang.code === i18n.language) || languages[0];
+    languages.find((lang) => lang.code === routeLanguage) || languages[0];
 
   return (
     <>
@@ -130,7 +116,7 @@ const LanguageSelector = () => {
           height: 44,
           position: "relative",
           overflow: "hidden",
-          bgcolor: (theme) =>
+          bgcolor:
             settings.mode === "light"
               ? "rgba(255,255,255,0.12)"
               : "rgba(15,23,42,0.65)",
@@ -171,7 +157,7 @@ const LanguageSelector = () => {
             transition: "width 0.6s ease, height 0.6s ease",
           },
           "&:hover": {
-            bgcolor: (theme) =>
+            bgcolor:
               settings.mode === "light"
                 ? "rgba(255,255,255,0.2)"
                 : "rgba(15,23,42,0.85)",
@@ -277,7 +263,7 @@ const LanguageSelector = () => {
         }}
       >
         {languages.map((lang) => {
-          const isSelected = i18n.language === lang.code;
+          const isSelected = routeLanguage === lang.code;
           return (
             <MenuItem
               key={lang.code}

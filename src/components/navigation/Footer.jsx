@@ -1,5 +1,5 @@
 import { Box, Container, Grid2, Stack, Typography, IconButton, Divider } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import YouTubeIcon from "@mui/icons-material/YouTube";
@@ -13,6 +13,7 @@ import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import useHomeContent from "../../hooks/useHomeContent";
 import { nx, fontHeading } from "../../theme/nexusHomeTheme";
 import logoDark from "../../assets/images/logo_dark.png";
+import { localizePathFromLocation } from "../../utils/localizedPath";
 
 const SOCIAL_ICONS = {
   facebook: FacebookIcon,
@@ -24,7 +25,9 @@ const SOCIAL_ICONS = {
 };
 
 const Footer = () => {
+  const location = useLocation();
   const { content } = useHomeContent();
+  const localizedPath = (path) => localizePathFromLocation(path, location.pathname);
   const footer = content.footer || {};
   const brandName = content.brand_name || "Nexus Capital";
   const brandTagline = content.brand_tagline || "";
@@ -77,7 +80,7 @@ const Footer = () => {
                 <Typography
                   key={i}
                   component={RouterLink}
-                  to={link.url || "/"}
+                  to={localizedPath(link.url || "/")}
                   sx={{ color: nx.textOnDarkMuted, fontSize: "0.85rem", textDecoration: "none", "&:hover": { color: nx.gold } }}
                 >
                   {link.label}
@@ -93,7 +96,7 @@ const Footer = () => {
                 <Typography
                   key={i}
                   component={RouterLink}
-                  to={area.url || "/buy"}
+                  to={localizedPath(area.url || "/buy")}
                   sx={{ color: nx.textOnDarkMuted, fontSize: "0.85rem", textDecoration: "none", "&:hover": { color: nx.gold } }}
                 >
                   {area.label}

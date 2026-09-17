@@ -36,6 +36,7 @@ import EmailRoundedIcon from "@mui/icons-material/EmailRounded";
 import logoLight from "../../assets/images/logo_light.png";
 import logoDark from "../../assets/images/logo_dark.png";
 import { NAV_MENU_ITEMS, DEFAULT_NAV_MENU, SERVICES_DROPDOWN_KEYS, ABOUT_DROPDOWN_KEYS } from "../../constants/navMenu";
+import { getBarePathname, localizePathFromLocation } from "../../utils/localizedPath";
 
 const useScrolled = (threshold = 40) => {
   return useScrollTrigger({ disableHysteresis: true, threshold });
@@ -54,6 +55,8 @@ const Header = () => {
   const { content: home } = useHomeContent();
   const whatsappNumber = (home.topbar?.whatsapp_number || "").replace(/[^\d+]/g, "").replace("+", "");
   const scrolled = useScrolled(40);
+  const currentBarePath = getBarePathname(location.pathname);
+  const localizedPath = (path) => localizePathFromLocation(path, location.pathname);
 
   const role = user?.role;
   const canAccessDashboard = role === "admin" || role === "agent";
@@ -91,9 +94,10 @@ const Header = () => {
 
   const isActive = (path) => {
     if (path === "/") {
-      return location.pathname === "/";
+      return currentBarePath === "/";
     }
-    return location.pathname.startsWith(path);
+
+    return currentBarePath === path || currentBarePath.startsWith(`${path}/`);
   };
 
   const NavButton = ({ link }) => {
@@ -102,7 +106,7 @@ const Header = () => {
     return (
       <Box
         component={Link}
-        to={link.path}
+        to={localizedPath(link.path)}
         sx={{
           position: "relative",
           textDecoration: "none",
@@ -205,7 +209,7 @@ const Header = () => {
             <MenuItem
               key={sub.path}
               component={Link}
-              to={sub.path}
+              to={localizedPath(sub.path)}
               onClick={() => setAnchorEl(null)}
               sx={{
                 color: isActive(sub.path) ? nx.gold : nx.textOnDark,
@@ -285,7 +289,7 @@ const Header = () => {
                     <ListItem key={sub.path} disablePadding sx={{ mb: 0.5 }}>
                       <ListItemButton
                         component={Link}
-                        to={sub.path}
+                        to={localizedPath(sub.path)}
                         onClick={handleDrawerToggle}
                         sx={{
                           borderRadius: 2,
@@ -341,7 +345,7 @@ const Header = () => {
                     <ListItem key={sub.path} disablePadding sx={{ mb: 0.5 }}>
                       <ListItemButton
                         component={Link}
-                        to={sub.path}
+                        to={localizedPath(sub.path)}
                         onClick={handleDrawerToggle}
                         sx={{
                           borderRadius: 2,
@@ -366,7 +370,7 @@ const Header = () => {
             <ListItem key={link.label} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
                 component={Link}
-                to={link.path}
+                to={localizedPath(link.path)}
                 onClick={handleDrawerToggle}
                 sx={{
                   borderRadius: 2,
@@ -406,7 +410,7 @@ const Header = () => {
                 t("auth.logoutSuccess", "You have logged out successfully.")
               );
               handleDrawerToggle();
-              navigate("/");
+              navigate(localizedPath("/"));
             }}
           >
             {t("auth.logout", "Logout")}
@@ -483,7 +487,7 @@ const Header = () => {
           >
             <Box
               component={Link}
-              to="/"
+              to={localizedPath("/")}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -619,7 +623,7 @@ const Header = () => {
                         "You have logged out successfully."
                       )
                     );
-                    navigate("/");
+                    navigate(localizedPath("/"));
                   }}
                   sx={{
                     display: { xs: "none", sm: "flex" },
