@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\HomeContent;
+use App\Services\AutoTranslationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -18,10 +19,10 @@ class AboutContentController extends Controller
         $data = $record?->data ?: $this->defaultContent();
         $data = ContentMerge::merge($this->defaultContent(), $data);
 
+        $data = $record?->localize($request->query('lang', 'en'), $data) ?? $data;
+
         $data['hero']['background_image'] = $this->resolveUrl($data['hero']['background_image'] ?? null);
         $data['chairman']['photo'] = $this->resolveUrl($data['chairman']['photo'] ?? null);
-
-        $data = $record?->localize($request->query('lang', 'en'), $data) ?? $data;
 
         return response()->json([
             'data'       => $data,
@@ -66,6 +67,11 @@ class AboutContentController extends Controller
         try {
             $record->key = self::KEY;
             $record->data = $merged;
+            $record->translations = AutoTranslationService::translateChangedIntoExisting(
+                $current,
+                $merged,
+                $record->translations
+            );
             $record->save();
         } catch (\Exception $e) {
             Log::error('AboutContentController@update: ' . $e->getMessage());

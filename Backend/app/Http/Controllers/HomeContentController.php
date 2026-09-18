@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\HomeContent;
+use App\Services\AutoTranslationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -30,13 +31,13 @@ class HomeContentController extends Controller
         // saved record, so the frontend never has to guard against undefined.
         $data = ContentMerge::merge($this->defaultContent(), $data);
 
+        $data = $record?->localize($request->query('lang', 'en'), $data) ?? $data;
+
         $logo = $data['logo_url'] ?? null;
         $data['logo_url'] = $this->resolveUrl($logo);
 
         $heroBg = $data['hero']['background_image'] ?? null;
         $data['hero']['background_image'] = $this->resolveUrl($heroBg);
-
-        $data = $record?->localize($request->query('lang', 'en'), $data) ?? $data;
 
         return response()->json([
             'data'        => $data,
@@ -85,6 +86,11 @@ class HomeContentController extends Controller
         try {
             $record->key = self::KEY;
             $record->data = $merged;
+            $record->translations = AutoTranslationService::translateChangedIntoExisting(
+                $current,
+                $merged,
+                $record->translations
+            );
             $record->save();
         } catch (\Exception $e) {
             Log::error('HomeContentController@update: ' . $e->getMessage());

@@ -57,11 +57,11 @@ class LegalServicesContentController extends Controller
             $record->key = self::KEY;
             $record->data = $merged;
 
-            // Auto-translate this page content into every site language,
-            // merging over any existing translations. Skipped silently if no
-            // translation API key is configured.
-            $freshTranslations = AutoTranslationService::translate($merged, array_keys($merged));
-            $record->translations = AutoTranslationService::mergeIntoExisting($record->translations, $freshTranslations);
+            $record->translations = AutoTranslationService::translateChangedIntoExisting(
+                $current,
+                $merged,
+                $record->translations
+            );
 
             $record->save();
         } catch (\Exception $e) {

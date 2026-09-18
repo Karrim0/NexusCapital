@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\HomeContent;
+use App\Services\AutoTranslationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -48,6 +49,11 @@ class FaqContentController extends Controller
         try {
             $record->key = self::KEY;
             $record->data = $merged;
+            $record->translations = AutoTranslationService::translateChangedIntoExisting(
+                $current,
+                $merged,
+                $record->translations
+            );
             $record->save();
         } catch (\Exception $e) {
             Log::error('FaqContentController@update: ' . $e->getMessage());

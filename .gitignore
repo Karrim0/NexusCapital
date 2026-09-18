@@ -42,4 +42,4 @@ Backend/public/*.log
 
 # Runtime uploaded files
 Backend/storage/app/public/
-Backend/public/storage/
+Backend/public/storage/Backend/.env.production-backup*
